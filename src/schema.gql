@@ -17,11 +17,17 @@ type Movie {
   exampleField: Int!
 }
 
+type Dashboard {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
 type Query {
   auth(id: Int!): Auth!
   user(id: Int!): User!
   movies: [Movie!]!
   movie(id: Int!): Movie!
+  dashboard(id: Int!): Dashboard!
 }
 
 type Mutation {
@@ -34,6 +40,9 @@ type Mutation {
   createMovie(createMovieInput: CreateMovieInput!): Movie!
   updateMovie(updateMovieInput: UpdateMovieInput!): Movie!
   removeMovie(id: Int!): Movie!
+  createDashboard(createDashboardInput: CreateDashboardInput!): Dashboard!
+  updateDashboard(updateDashboardInput: UpdateDashboardInput!): Dashboard!
+  removeDashboard(id: Int!): Dashboard!
 }
 
 input CreateAuthInput {
@@ -64,6 +73,17 @@ input CreateMovieInput {
 }
 
 input UpdateMovieInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateDashboardInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateDashboardInput {
   """Example field (placeholder)"""
   exampleField: Int
   id: Int!

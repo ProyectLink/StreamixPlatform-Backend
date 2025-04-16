@@ -14,94 +14,149 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  email      String    @unique
-  name       String?
-  created_at DateTime  @default(now())
-  Saga       Saga[]
-  Profile    Profile[]
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  membershipId  String?
+  membership    Membership?    @relation(fields: [membershipId], references: [id])
+  profiles      Profile[]
+  sagas         Saga[]
+  authProviders AuthProvider[]
+}
+
+model AuthProvider {
+  id         String           @id @default(uuid())
+  provider   AuthProviderType
+  providerId String
+  userId     String
+  user       User             @relation(fields: [userId], references: [id])
+  createdAt  DateTime         @default(now())
+
+  @@unique([provider, providerId])
+}
+
+model Membership {
+  id                       String         @id @default(uuid())
+  name                     String
+  type                     MembershipType
+  max_profiles             Int
+  max_devices              Int
+  content_quality          VideoQuality
+  ads_enabled              Boolean
+  can_comment              Boolean
+  can_rate                 Boolean
+  movie_requests_per_day   Int
+  series_requests_per_week Int
+  has_real_time_rooms      Boolean
+  has_linktree_profile     Boolean
+  has_chatbot              Boolean
+  has_notifications        Boolean
+  users                    User[]
 }
 
 model Profile {
-  id         String   @id @default(uuid())
-  user_id    Int
-  user       User     @relation(fields: [user_id], references: [id])
-  name       String
-  avatar_url String
-  is_primary Boolean
-  created_at DateTime @default(now())
-}
-
-model Movie {
-  id           String       @id @default(uuid())
-  title        String
-  description  String
-  release_year Int
-  duration     Int
-  quality      String
-  saga         Saga?        @relation(fields: [saga_id], references: [id])
-  saga_id      String?
-  created_at   DateTime     @default(now())
-  genres       MovieGenre[]
-}
-
-model Series {
-  id           String        @id @default(uuid())
-  title        String
-  description  String
-  release_year Int
-  quality      String
-  created_at   DateTime      @default(now())
-  seasons      Season[]
-  genres       SeriesGenre[]
-}
-
-model Season {
-  id            String    @id @default(uuid())
-  series        Series    @relation(fields: [series_id], references: [id])
-  series_id     String
-  season_number Int
-  episodes      Episode[]
-}
-
-model Episode {
-  id             String @id @default(uuid())
-  season         Season @relation(fields: [season_id], references: [id])
-  season_id      String
-  episode_number Int
-  title          String
-  duration       Int
+  id        String   @id @default(uuid())
+  name      String
+  avatarUrl String
+  isPrimary Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Saga {
-  id                 String  @id @default(uuid())
-  name               String
-  created_by_user_id Int
-  created_by_user    User    @relation(fields: [created_by_user_id], references: [id])
-  movies             Movie[]
+  id     String  @id @default(uuid())
+  name   String
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+  movies Movie[]
+}
+
+model Movie {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  releaseYear Int
+  duration    Int
+  quality     VideoQuality
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  sagaId      String?
+  saga        Saga?        @relation(fields: [sagaId], references: [id])
+  genres      MovieGenre[]
+}
+
+model Series {
+  id          String        @id @default(uuid())
+  title       String
+  description String
+  releaseYear Int
+  quality     VideoQuality
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  seasons     Season[]
+  genres      SeriesGenre[]
+}
+
+model Season {
+  id           String    @id @default(uuid())
+  seasonNumber Int
+  seriesId     String
+  series       Series    @relation(fields: [seriesId], references: [id])
+  episodes     Episode[]
+}
+
+model Episode {
+  id            String @id @default(uuid())
+  episodeNumber Int
+  title         String
+  duration      Int
+  seasonId      String
+  season        Season @relation(fields: [seasonId], references: [id])
 }
 
 model Genre {
-  id           String        @id @default(uuid())
-  name         String
-  movieGenres  MovieGenre[]
-  seriesGenres SeriesGenre[]
+  id     String        @id @default(uuid())
+  name   String
+  movies MovieGenre[]
+  series SeriesGenre[]
 }
 
 model MovieGenre {
-  movie    Movie  @relation(fields: [movie_id], references: [id])
-  movie_id String
-  genre    Genre  @relation(fields: [genre_id], references: [id])
-  genre_id String
+  movieId String
+  genreId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id])
 
-  @@id([movie_id, genre_id])
+  @@id([movieId, genreId])
 }
 
 model SeriesGenre {
-  series    Series @relation(fields: [series_id], references: [id])
-  series_id String
-  genre     Genre  @relation(fields: [genre_id], references: [id])
-  genre_id  String
+  seriesId String
+  genreId  String
+  series   Series @relation(fields: [seriesId], references: [id])
+  genre    Genre  @relation(fields: [genreId], references: [id])
 
-  @@id([series_id, genre_id])
+  @@id([seriesId, genreId])
+}
+
+enum VideoQuality {
+  SD
+  HD
+  FULL_HD
+  UHD_4K
+}
+
+enum MembershipType {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum AuthProviderType {
+  GOOGLE
+  LOCAL
 }
