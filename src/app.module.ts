@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { MoviesModule } from './movies/movies.module';
 import { GraphqlModule } from './config/graphql/graphql.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GraphqlModule } from './config/graphql/graphql.module';
     AuthModule,
     UserModule,
     MoviesModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

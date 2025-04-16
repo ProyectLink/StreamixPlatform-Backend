@@ -6,10 +6,102 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  name       String?
+  created_at DateTime  @default(now())
+  Saga       Saga[]
+  Profile    Profile[]
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  name       String
+  avatar_url String
+  is_primary Boolean
+  created_at DateTime @default(now())
+}
+
+model Movie {
+  id           String       @id @default(uuid())
+  title        String
+  description  String
+  release_year Int
+  duration     Int
+  quality      String
+  saga         Saga?        @relation(fields: [saga_id], references: [id])
+  saga_id      String?
+  created_at   DateTime     @default(now())
+  genres       MovieGenre[]
+}
+
+model Series {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  release_year Int
+  quality      String
+  created_at   DateTime      @default(now())
+  seasons      Season[]
+  genres       SeriesGenre[]
+}
+
+model Season {
+  id            String    @id @default(uuid())
+  series        Series    @relation(fields: [series_id], references: [id])
+  series_id     String
+  season_number Int
+  episodes      Episode[]
+}
+
+model Episode {
+  id             String @id @default(uuid())
+  season         Season @relation(fields: [season_id], references: [id])
+  season_id      String
+  episode_number Int
+  title          String
+  duration       Int
+}
+
+model Saga {
+  id                 String  @id @default(uuid())
+  name               String
+  created_by_user_id Int
+  created_by_user    User    @relation(fields: [created_by_user_id], references: [id])
+  movies             Movie[]
+}
+
+model Genre {
+  id           String        @id @default(uuid())
+  name         String
+  movieGenres  MovieGenre[]
+  seriesGenres SeriesGenre[]
+}
+
+model MovieGenre {
+  movie    Movie  @relation(fields: [movie_id], references: [id])
+  movie_id String
+  genre    Genre  @relation(fields: [genre_id], references: [id])
+  genre_id String
+
+  @@id([movie_id, genre_id])
+}
+
+model SeriesGenre {
+  series    Series @relation(fields: [series_id], references: [id])
+  series_id String
+  genre     Genre  @relation(fields: [genre_id], references: [id])
+  genre_id  String
+
+  @@id([series_id, genre_id])
 }
